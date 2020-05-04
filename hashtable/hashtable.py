@@ -7,6 +7,7 @@ class HashTableEntry:
         self.key = key
         self.value = value
         self.next = None
+        self.prev = None
 
 
 class HashTable:
@@ -16,6 +17,12 @@ class HashTable:
 
     Implement this.
     """
+    def __init__(self, capacity):
+        self.head = None
+        self.tail = None
+        self.capacity = capacity
+        self.size = 0
+        self.storage = [None] * capacity
 
     def fnv1(self, key):
         """
@@ -23,6 +30,18 @@ class HashTable:
 
         Implement this, and/or DJB2.
         """
+        fnv_offset_basis = 0xcbf29ce484222325
+        fnv_prime = 0x100000001b3
+        fnv_size = 2**64
+
+        fnv_hash = fnv_offset_basis
+
+        for char in key:
+            fnv_hash = (fnv_hash * fnv_prime) % fnv_size
+            fnv_hash = fnv_hash ^ ord(char)
+        
+        return fnv_hash
+        
 
     def djb2(self, key):
         """
@@ -36,8 +55,8 @@ class HashTable:
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        #return self.fnv1(key) % self.capacity
-        return self.djb2(key) % self.capacity
+        return self.fnv1(key) % self.capacity
+        # return self.djb2(key) % self.capacity
 
     def put(self, key, value):
         """
@@ -46,7 +65,13 @@ class HashTable:
         Hash collisions should be handled with Linked List Chaining.
 
         Implement this.
-        """
+        """       
+
+        if self.size < self.capacity:            
+            index = self.hash_index(key)
+            self.storage[index] = (key, value)
+            self.size += 1
+        
 
     def delete(self, key):
         """
@@ -56,6 +81,12 @@ class HashTable:
 
         Implement this.
         """
+        index = self.hash_index(key)
+        if self.storage[index] is None:
+            print('Key not found')
+        else:
+            self.storage[index] = None
+            self.size -= 1
 
     def get(self, key):
         """
@@ -64,7 +95,12 @@ class HashTable:
         Returns None if the key is not found.
 
         Implement this.
-        """
+        """        
+        index = self.hash_index(key)
+        if self.storage[index] is None:
+            print('Key not found')
+        else:
+            return self.storage[index][1]
 
     def resize(self):
         """
@@ -75,7 +111,7 @@ class HashTable:
         """
 
 if __name__ == "__main__":
-    ht = HashTable(2)
+    ht = HashTable(4)
 
     ht.put("line_1", "Tiny hash table")
     ht.put("line_2", "Filled beyond capacity")
@@ -88,16 +124,16 @@ if __name__ == "__main__":
     print(ht.get("line_2"))
     print(ht.get("line_3"))
 
-    # Test resizing
-    old_capacity = len(ht.storage)
-    ht.resize()
-    new_capacity = len(ht.storage)
+    # # Test resizing
+    # old_capacity = len(ht.storage)
+    # ht.resize()
+    # new_capacity = len(ht.storage)
 
-    print(f"\nResized from {old_capacity} to {new_capacity}.\n")
+    # print(f"\nResized from {old_capacity} to {new_capacity}.\n")
 
-    # Test if data intact after resizing
-    print(ht.get("line_1"))
-    print(ht.get("line_2"))
-    print(ht.get("line_3"))
+    # # Test if data intact after resizing
+    # print(ht.get("line_1"))
+    # print(ht.get("line_2"))
+    # print(ht.get("line_3"))
 
-    print("")
+    # print("")
