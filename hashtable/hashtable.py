@@ -7,7 +7,6 @@ class HashTableEntry:
         self.key = key
         self.value = value
         self.next = None
-        self.prev = None
 
 
 class HashTable:
@@ -66,11 +65,12 @@ class HashTable:
 
         Implement this.
         """       
-
-        if self.size < self.capacity:            
-            index = self.hash_index(key)
-            self.storage[index] = (key, value)
-            self.size += 1
+        if self.size == self.capacity:
+            self.resize()
+                   
+        index = self.hash_index(key)
+        self.storage[index] = (key, value)
+        self.size += 1
         
 
     def delete(self, key):
@@ -109,9 +109,17 @@ class HashTable:
 
         Implement this.
         """
+        self.capacity *= 2
+        new_storage = [None] * self.capacity
+        for i in self.storage:
+            if i is not None:
+                index = self.hash_index(i[0])
+                new_storage[index] = (i[0], i[1])
+        self.storage = new_storage
+
 
 if __name__ == "__main__":
-    ht = HashTable(4)
+    ht = HashTable(2)
 
     ht.put("line_1", "Tiny hash table")
     ht.put("line_2", "Filled beyond capacity")
@@ -124,16 +132,16 @@ if __name__ == "__main__":
     print(ht.get("line_2"))
     print(ht.get("line_3"))
 
-    # # Test resizing
-    # old_capacity = len(ht.storage)
-    # ht.resize()
-    # new_capacity = len(ht.storage)
+    # Test resizing
+    old_capacity = len(ht.storage)
+    ht.resize()
+    new_capacity = len(ht.storage)
 
-    # print(f"\nResized from {old_capacity} to {new_capacity}.\n")
+    print(f"\nResized from {old_capacity} to {new_capacity}.\n")
 
-    # # Test if data intact after resizing
-    # print(ht.get("line_1"))
-    # print(ht.get("line_2"))
-    # print(ht.get("line_3"))
+    # Test if data intact after resizing
+    print(ht.get("line_1"))
+    print(ht.get("line_2"))
+    print(ht.get("line_3"))
 
-    # print("")
+    print("")
