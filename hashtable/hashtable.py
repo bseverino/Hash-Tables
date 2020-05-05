@@ -8,6 +8,47 @@ class HashTableEntry:
         self.value = value
         self.next = None
 
+class HashLinkedList:
+    def __init__(self, head=None):
+        self.head = head
+
+    def add(self, key, value):
+        if self.head is None:
+            self.head = HashTableEntry(key, value)
+        elif self.head.key == key:
+            self.head.value = value
+            return
+        else:
+            current_node = self.head
+            while current_node.next is not None:
+                if current_node.next.key == key:
+                    current_node.next.value = value
+                    return
+                current_node = current_node.next
+            current_node.next = HashTableEntry(key, value)
+    
+    def get(self, key):
+        current_node = self.head
+        while current_node is not None:
+            if current_node.key == key:
+                return current_node.value
+            current_node = current_node.next
+        return None
+    
+    def delete(self, key):
+        current_node = self.head
+        if current_node.key == key:
+            self.head = current_node.next
+            return True
+        prev_node = None
+        while current_node is not None:
+            if current_node.key == key:
+                prev_node.next = current_node.next
+                current_node.next = None
+                return True
+            prev_node = current_node
+            current_node = current_node.next
+        return False
 
 class HashTable:
     """
@@ -17,8 +58,6 @@ class HashTable:
     Implement this.
     """
     def __init__(self, capacity):
-        self.head = None
-        self.tail = None
         self.capacity = capacity
         self.size = 0
         self.storage = [None] * capacity
@@ -72,11 +111,14 @@ class HashTable:
 
         Implement this.
         """       
-        if self.size == self.capacity:
-            self.resize()
+        # if self.size == self.capacity:
+        #     self.resize()
                    
         index = self.hash_index(key)
-        self.storage[index] = (key, value)
+        if self.storage[index] is not None:
+            self.storage[index].add(key, value)
+        else:
+            self.storage[index] = HashLinkedList(HashTableEntry(key, value))
         self.size += 1
         
 
@@ -92,8 +134,11 @@ class HashTable:
         if self.storage[index] is None:
             print('Key not found')
         else:
-            self.storage[index] = None
-            self.size -= 1
+            response = self.storage[index].delete(key)
+            if response is True:
+                self.size -= 1
+            else:
+                print('Key not found')
 
     def get(self, key):
         """
@@ -107,22 +152,22 @@ class HashTable:
         if self.storage[index] is None:
             print('Key not found')
         else:
-            return self.storage[index][1]
+            return self.storage[index].get(key)
 
-    def resize(self):
-        """
-        Doubles the capacity of the hash table and
-        rehash all key/value pairs.
+    # def resize(self):
+    #     """
+    #     Doubles the capacity of the hash table and
+    #     rehash all key/value pairs.
 
-        Implement this.
-        """
-        self.capacity *= 2
-        new_storage = [None] * self.capacity
-        for i in self.storage:
-            if i is not None:
-                index = self.hash_index(i[0])
-                new_storage[index] = (i[0], i[1])
-        self.storage = new_storage
+    #     Implement this.
+    #     """
+    #     self.capacity *= 2
+    #     new_storage = [None] * self.capacity
+    #     for i in self.storage:
+    #         if i is not None:
+    #             index = self.hash_index(i[0])
+    #             new_storage[index] = (i[0], i[1])
+    #     self.storage = new_storage
 
 
 if __name__ == "__main__":
@@ -139,16 +184,16 @@ if __name__ == "__main__":
     print(ht.get("line_2"))
     print(ht.get("line_3"))
 
-    # Test resizing
-    old_capacity = len(ht.storage)
-    ht.resize()
-    new_capacity = len(ht.storage)
+    # # Test resizing
+    # old_capacity = len(ht.storage)
+    # ht.resize()
+    # new_capacity = len(ht.storage)
 
-    print(f"\nResized from {old_capacity} to {new_capacity}.\n")
+    # print(f"\nResized from {old_capacity} to {new_capacity}.\n")
 
-    # Test if data intact after resizing
-    print(ht.get("line_1"))
-    print(ht.get("line_2"))
-    print(ht.get("line_3"))
+    # # Test if data intact after resizing
+    # print(ht.get("line_1"))
+    # print(ht.get("line_2"))
+    # print(ht.get("line_3"))
 
-    print("")
+    # print("")
