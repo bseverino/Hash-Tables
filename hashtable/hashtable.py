@@ -132,6 +132,13 @@ class HashTable:
 
         Implement this.
         """
+        load = self.load_factor()
+        if load < 0.2:
+            if self.capacity // 2 < self.size:
+                self.resize(self.size)
+            else:
+                self.resize(self.capacity // 2)
+
         index = self.hash_index(key)
         if self.storage[index] is None:
             print('Key not found')
@@ -179,14 +186,18 @@ class HashTable:
         Implement this.
         """
         self.capacity = size
+
         new_storage = [None] * self.capacity
+
         for i in self.storage:
             if i:
                 current_node = i.head
                 while current_node is not None:
                     self.rehash(current_node.key, current_node.value, new_storage)
                     current_node = current_node.next
+
         self.storage = new_storage
+        print(f'Resized to {size}')
 
 
 if __name__ == "__main__":
@@ -203,18 +214,16 @@ if __name__ == "__main__":
     print(ht.get("line_2"))
     print(ht.get("line_3"))
 
-    print(ht.capacity)
+    # Test resizing
+    old_capacity = len(ht.storage)
+    ht.resize(6)
+    new_capacity = len(ht.storage)
 
-    # # Test resizing
-    # old_capacity = len(ht.storage)
-    # ht.resize()
-    # new_capacity = len(ht.storage)
+    print(f"\nResized from {old_capacity} to {new_capacity}.\n")
 
-    # print(f"\nResized from {old_capacity} to {new_capacity}.\n")
+    # Test if data intact after resizing
+    print(ht.get("line_1"))
+    print(ht.get("line_2"))
+    print(ht.get("line_3"))
 
-    # # Test if data intact after resizing
-    # print(ht.get("line_1"))
-    # print(ht.get("line_2"))
-    # print(ht.get("line_3"))
-
-    # print("")
+    print("")
