@@ -49,6 +49,7 @@ class HashLinkedList:
             prev_node = current_node
             current_node = current_node.next
         return False
+        
 
 class HashTable:
     """
@@ -110,9 +111,10 @@ class HashTable:
         Hash collisions should be handled with Linked List Chaining.
 
         Implement this.
-        """       
-        # if self.size == self.capacity:
-        #     self.resize()
+        """
+        load = self.load_factor()
+        if load > 0.7 :
+            self.resize(self.capacity * 2)
                    
         index = self.hash_index(key)
         if self.storage[index] is not None:
@@ -153,21 +155,38 @@ class HashTable:
             print('Key not found')
         else:
             return self.storage[index].get(key)
+    
+    def load_factor(self):
+        return self.size / self.capacity
 
-    # def resize(self):
-    #     """
-    #     Doubles the capacity of the hash table and
-    #     rehash all key/value pairs.
+    def for_each(self, cb):
+        for i in self.storage:
+            if i:
+                i.for_each(cb)
+    
+    def rehash(self, key, value, target):
+        index = self.hash_index(key)
+        if target[index] is not None:
+            target[index].add(key, value)
+        else:
+            target[index] = HashLinkedList(HashTableEntry(key, value))
 
-    #     Implement this.
-    #     """
-    #     self.capacity *= 2
-    #     new_storage = [None] * self.capacity
-    #     for i in self.storage:
-    #         if i is not None:
-    #             index = self.hash_index(i[0])
-    #             new_storage[index] = (i[0], i[1])
-    #     self.storage = new_storage
+    def resize(self, size):
+        """
+        Doubles the capacity of the hash table and
+        rehash all key/value pairs.
+
+        Implement this.
+        """
+        self.capacity = size
+        new_storage = [None] * self.capacity
+        for i in self.storage:
+            if i:
+                current_node = i.head
+                while current_node is not None:
+                    self.rehash(current_node.key, current_node.value, new_storage)
+                    current_node = current_node.next
+        self.storage = new_storage
 
 
 if __name__ == "__main__":
@@ -183,6 +202,8 @@ if __name__ == "__main__":
     print(ht.get("line_1"))
     print(ht.get("line_2"))
     print(ht.get("line_3"))
+
+    print(ht.capacity)
 
     # # Test resizing
     # old_capacity = len(ht.storage)
