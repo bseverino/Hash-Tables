@@ -134,9 +134,7 @@ class HashTable:
         """
         load = self.load_factor()
         if load < 0.2:
-            if self.capacity // 2 < self.size:
-                self.resize(self.size)
-            else:
+            if self.capacity // 2 >= 128:
                 self.resize(self.capacity // 2)
 
         index = self.hash_index(key)
