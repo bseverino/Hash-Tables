@@ -1,4 +1,6 @@
-def word_count(s, cache={}):
+cache = {}
+
+def word_count(s):
     if s == '':
         return {}
 
